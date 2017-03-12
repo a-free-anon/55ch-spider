@@ -10,21 +10,25 @@ class FiveFiveScrapper():
     request = self.scraper.get("http://55chan.org/b/{}".format(url))
     return request
 
-  def _get_thread_list(self):
+  def _get_threads(self):
     request = self._get("threads.json")
 
     if request.status_code == 200:
-      return self.parser.parse_thread_list(request.content)
+      return self.parser.parse_threads(request.content)
     else:
       raise Exception
 
-  def _get_thread(self):
-    request = self.scraper.get("http://55chan.org/b/threads.json")
-    return request.content
+  def _get_thread(self, thread):
+    request = self._get("res/{}.json".format(thread))
+
+    if request.status_code == 200:
+      return self.parser.parse_thread(request.content)
+    else:
+      raise Exception
 
   def _scrape_loop(self):
     while True:
-      threads = self._get_thread_list()
+      threads = self._get_thread_dict()
       print(threads)
       exit()
 
