@@ -29,7 +29,7 @@ class BackupBot():
     for no, last_modified in threads.items():
       self._update_thread(no, last_modified)
 
-    time.sleep(1)
+    time.sleep(5)
 
   def _update_thread(self, no, last_modified):
     Thread = Query()
@@ -38,20 +38,24 @@ class BackupBot():
       thread = self.db.threads.search(Thread.no == no)[0]
       print(":::: Thread {} already registered.".format(no))
     except IndexError:
-      #print(":::: Thread {} not registered. Saving.".format(no))
+      print(":::: Thread {} not registered. Saving.".format(no))
       thread = {"no": no, "last_modified": last_modified}
       self.db.threads.insert(thread)
 
     if thread["last_modified"] == last_modified:
-      #print(":::: Thread not modified.")
+      print(":::: Thread not modified.")
       pass
     else:
       print(":::: Thread modified, updating.")
-      thread = self.scrapper._get_thread(no)
-      self.db.update_thread(no, thread)
 
-      print(":::: Updating last seen.".format(no))
-      self.db.update_thread(no, {"last_seen": time.time()})
+      try:
+        thread = self.scrapper._get_thread(no)
+        self.db.update_thread(no, thread)
+      except:
+        pass
+
+    print(":::: Updating last seen.".format(no))
+    self.db.update_thread(no, {"last_seen": time.time()})
 
 
 
